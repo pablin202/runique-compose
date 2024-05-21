@@ -8,7 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.pdm.runique.auth.presentation.intro.IntroScreenRoot
+import androidx.navigation.compose.rememberNavController
 import com.pdm.runique.core.presentation.designsystem.RuniqueTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -19,7 +19,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             RuniqueTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
-                    IntroScreenRoot({}, {})
+                    val navController = rememberNavController()
+                    NavigationRoot(navController = navController)
                 }
             }
         }
