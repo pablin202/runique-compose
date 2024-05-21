@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.pdm.runique.auth.domain.PasswordValidationState
 import com.pdm.runique.auth.domain.UserDataValidator
 import com.pdm.runique.auth.presentation.R
+import com.pdm.runique.auth.presentation.login.LoginAction
 import com.pdm.runique.core.presentation.designsystem.CheckIcon
 import com.pdm.runique.core.presentation.designsystem.CrossIcon
 import com.pdm.runique.core.presentation.designsystem.EmailIcon
@@ -82,7 +83,13 @@ fun RegisterScreenRoot(
 
     RegisterScreen(
         state = viewModel.state,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when(action) {
+                is RegisterAction.OnLoginClick -> onSignInClick()
+                else -> Unit
+            }
+            viewModel.onAction(action)
+        }
     )
 }
 
