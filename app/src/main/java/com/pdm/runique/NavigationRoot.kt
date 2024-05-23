@@ -10,6 +10,7 @@ import androidx.navigation.navigation
 import com.pdm.runique.auth.presentation.intro.IntroScreenRoot
 import com.pdm.runique.auth.presentation.login.LoginScreenRoot
 import com.pdm.runique.auth.presentation.register.RegisterScreenRoot
+import com.pdm.runique.run.presentation.run_overview.RunOverviewRoot
 
 @Composable
 fun NavigationRoot(
@@ -82,11 +83,11 @@ private fun NavGraphBuilder.authGraph(navController: NavHostController) {
 
 private fun NavGraphBuilder.runGraph(navController: NavHostController) {
     navigation(
-        startDestination = "run_home",
+        startDestination = "run_overview",
         route = "run"
     ) {
-        composable(route = "run_home") {
-            Text(text = "RUN")
+        composable(route = "run_overview") {
+            RunOverviewRoot()
         }
     }
 }
