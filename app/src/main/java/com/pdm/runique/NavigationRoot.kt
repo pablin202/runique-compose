@@ -10,6 +10,7 @@ import androidx.navigation.navigation
 import com.pdm.runique.auth.presentation.intro.IntroScreenRoot
 import com.pdm.runique.auth.presentation.login.LoginScreenRoot
 import com.pdm.runique.auth.presentation.register.RegisterScreenRoot
+import com.pdm.runique.run.presentation.active_run.ActiveRunScreenRoot
 import com.pdm.runique.run.presentation.run_overview.RunOverviewRoot
 
 @Composable
@@ -19,7 +20,7 @@ fun NavigationRoot(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if(isLoggedIn) "run" else "auth"
+        startDestination = if (isLoggedIn) "run" else "auth"
     ) {
         authGraph(navController)
         runGraph(navController)
@@ -87,7 +88,13 @@ private fun NavGraphBuilder.runGraph(navController: NavHostController) {
         route = "run"
     ) {
         composable(route = "run_overview") {
-            RunOverviewRoot()
+            RunOverviewRoot({
+                navController.navigate("active_run")
+            })
+        }
+
+        composable(route = "active_run") {
+            ActiveRunScreenRoot()
         }
     }
 }
