@@ -1,10 +1,9 @@
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.runique.android.library)
 }
 
 android {
     namespace = "com.pdm.runique.run.data"
-    compileSdk = 34
 }
 
 dependencies {
