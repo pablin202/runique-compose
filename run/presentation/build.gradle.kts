@@ -4,7 +4,6 @@ plugins {
 
 android {
     namespace = "com.pdm.runique.run.presentation"
-    compileSdk = 34
 }
 
 dependencies {
