@@ -73,7 +73,6 @@ fun RunDataCard(
     }
 }
 
-
 @Composable
 private fun RunDataItem(
     title: String,
