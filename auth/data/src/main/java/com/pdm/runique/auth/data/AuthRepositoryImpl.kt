@@ -5,7 +5,7 @@ import com.pdm.runique.core.data.networking.post
 import com.pdm.runique.core.domain.AuthInfo
 import com.pdm.runique.core.domain.SessionStorage
 import com.pdm.runique.core.domain.util.DataError
-import com.pdm.runique.core.domain.util.EmptyDataResult
+import com.pdm.runique.core.domain.util.EmptyResult
 import com.pdm.runique.core.domain.util.Result
 import com.pdm.runique.core.domain.util.asEmptyDataResult
 import io.ktor.client.HttpClient
@@ -17,7 +17,7 @@ class AuthRepositoryImpl(
     override suspend fun register(
         email: String,
         password: String
-    ): EmptyDataResult<DataError.Network> {
+    ): EmptyResult<DataError.Network> {
         return httpClient.post<RegisterRequest, Unit>(
             route = "/register",
             body = RegisterRequest(
@@ -30,7 +30,7 @@ class AuthRepositoryImpl(
     override suspend fun login(
         email: String,
         password: String
-    ): EmptyDataResult<DataError.Network> {
+    ): EmptyResult<DataError.Network> {
         val result = httpClient.post<LoginRequest, LoginResponse>(
             route = "/login",
             body = LoginRequest(
