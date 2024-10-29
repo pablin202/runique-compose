@@ -9,16 +9,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.pdm.runique.core.domain.run.SyncRunScheduler
 import com.pdm.runique.run.presentation.run_overview.mapper.toRunUi
+import kotlin.time.Duration.Companion.minutes
 
 class RunOverviewViewModel(
-    private val runRepository: RunRepository
-): ViewModel() {
+    private val runRepository: RunRepository,
+    private val syncRunScheduler: SyncRunScheduler
+) : ViewModel() {
 
     var state by mutableStateOf(RunOverviewState())
         private set
 
     init {
+        viewModelScope.launch {
+            syncRunScheduler.scheduleSync(type = SyncRunScheduler.SyncType.FetchRuns(30.minutes))
+        }
         runRepository.getRuns().onEach { runs ->
             val runsUi = runs.map { it.toRunUi() }
             state = state.copy(runs = runsUi)
@@ -31,7 +37,7 @@ class RunOverviewViewModel(
     }
 
     fun onAction(action: RunOverviewAction) {
-        when(action) {
+        when (action) {
             RunOverviewAction.OnLogoutClick -> Unit
             RunOverviewAction.OnStartClick -> Unit
             is RunOverviewAction.DeleteRun -> {
@@ -39,6 +45,7 @@ class RunOverviewViewModel(
                     runRepository.deleteRun(action.runUi.id)
                 }
             }
+
             else -> Unit
         }
     }

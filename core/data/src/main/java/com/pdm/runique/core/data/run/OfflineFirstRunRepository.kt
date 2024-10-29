@@ -1,6 +1,5 @@
 package com.pdm.runique.core.data.run
 
-import com.pdm.runique.core.data.auth.EncryptedSessionStorage
 import com.pdm.runique.core.database.dao.RunPendingSyncDao
 import com.pdm.runique.core.database.mappers.toRun
 import com.pdm.runique.core.domain.SessionStorage
@@ -9,8 +8,11 @@ import com.pdm.runique.core.domain.run.RemoteRunDataSource
 import com.pdm.runique.core.domain.run.Run
 import com.pdm.runique.core.domain.run.RunId
 import com.pdm.runique.core.domain.run.RunRepository
+import com.pdm.runique.core.domain.run.SyncRunScheduler
 import com.pdm.runique.core.domain.util.DataError
 import com.pdm.runique.core.domain.util.EmptyResult
+import com.pdm.runique.core.domain.util.Error
+import com.pdm.runique.core.domain.util.Result
 import com.pdm.runique.core.domain.util.asEmptyDataResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +27,7 @@ class OfflineFirstRunRepository(
     private val applicationScope: CoroutineScope,
     private val runPendingSyncDao: RunPendingSyncDao,
     private val sessionStorage: SessionStorage,
+    private val syncRunScheduler: SyncRunScheduler
 ) : RunRepository {
 
     override fun getRuns(): Flow<List<Run>> {
@@ -33,8 +36,8 @@ class OfflineFirstRunRepository(
 
     override suspend fun fetchRuns(): EmptyResult<DataError> {
         return when (val result = remoteRunDataSource.getRuns()) {
-            is com.pdm.runique.core.domain.util.Result.Error -> result.asEmptyDataResult()
-            is com.pdm.runique.core.domain.util.Result.Success -> {
+            is Result.Error -> result.asEmptyDataResult()
+            is Result.Success -> {
                 applicationScope.async {
                     localRunDataSource.upsertRuns(result.data).asEmptyDataResult()
                 }.await()
@@ -44,7 +47,7 @@ class OfflineFirstRunRepository(
 
     override suspend fun upsertRun(run: Run, mapPicture: ByteArray): EmptyResult<DataError> {
         val localResult = localRunDataSource.upsertRun(run)
-        if (localResult !is com.pdm.runique.core.domain.util.Result.Success) {
+        if (localResult !is Result.Success) {
             return localResult.asEmptyDataResult()
         }
 
@@ -55,11 +58,19 @@ class OfflineFirstRunRepository(
         )
 
         return when (remoteResult) {
-            is com.pdm.runique.core.domain.util.Result.Error -> {
-                com.pdm.runique.core.domain.util.Result.Success(Unit)
+            is Result.Error -> {
+                applicationScope.launch {
+                    syncRunScheduler.scheduleSync(
+                        type = SyncRunScheduler.SyncType.CreateRun(
+                            runWithId,
+                            mapPicture
+                        )
+                    )
+                }.join()
+                Result.Success(Unit)
             }
 
-            is com.pdm.runique.core.domain.util.Result.Success -> {
+            is Result.Success -> {
                 applicationScope.async {
                     localRunDataSource.upsertRun(remoteResult.data).asEmptyDataResult()
                 }.await()
@@ -74,7 +85,7 @@ class OfflineFirstRunRepository(
         // and then deleted in offline-mode as well. In that case,
         // we don't need to sync anything.
         val isPendingSync = runPendingSyncDao.getRunPendingSyncEntity(id) != null
-        if(isPendingSync) {
+        if (isPendingSync) {
             runPendingSyncDao.deleteRunPendingSyncEntity(id)
             return
         }
@@ -82,6 +93,16 @@ class OfflineFirstRunRepository(
         val remoteResult = applicationScope.async {
             remoteRunDataSource.deleteRun(id)
         }.await()
+
+        if (remoteResult is Result.Error) {
+            applicationScope.launch {
+                syncRunScheduler.scheduleSync(
+                    type = SyncRunScheduler.SyncType.DeleteRun(
+                        id
+                    )
+                )
+            }.join()
+        }
     }
 
     override suspend fun syncPendingRuns() {
@@ -100,9 +121,9 @@ class OfflineFirstRunRepository(
                 .map {
                     launch {
                         val run = it.run.toRun()
-                        when(remoteRunDataSource.postRun(run, it.mapPictureBytes)) {
-                            is com.pdm.runique.core.domain.util.Result.Error -> Unit
-                            is com.pdm.runique.core.domain.util.Result.Success -> {
+                        when (remoteRunDataSource.postRun(run, it.mapPictureBytes)) {
+                            is Result.Error -> Unit
+                            is Result.Success -> {
                                 applicationScope.launch {
                                     runPendingSyncDao.deleteRunPendingSyncEntity(it.runId)
                                 }.join()
@@ -114,9 +135,9 @@ class OfflineFirstRunRepository(
                 .await()
                 .map {
                     launch {
-                        when(remoteRunDataSource.deleteRun(it.runId)) {
-                            is com.pdm.runique.core.domain.util.Result.Error -> Unit
-                            is com.pdm.runique.core.domain.util.Result.Success -> {
+                        when (remoteRunDataSource.deleteRun(it.runId)) {
+                            is Result.Error -> Unit
+                            is Result.Success -> {
                                 applicationScope.launch {
                                     runPendingSyncDao.deleteDeletedRunSyncEntity(it.runId)
                                 }.join()

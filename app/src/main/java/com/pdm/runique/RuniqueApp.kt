@@ -6,6 +6,7 @@ import com.pdm.runique.auth.presentation.di.authViewModelModule
 import com.pdm.runique.core.data.di.coreDataModule
 import com.pdm.runique.core.database.di.databaseModule
 import com.pdm.runique.di.appModule
+import com.pdm.runique.run.data.di.runDataModule
 import com.pdm.runique.run.location.di.locationModule
 import com.pdm.runique.run.network.di.networkModule
 import com.pdm.runique.run.presentation.di.runPresentationModule
@@ -37,7 +38,8 @@ class RuniqueApp: Application() {
                 coreDataModule,
                 locationModule,
                 databaseModule,
-                networkModule
+                networkModule,
+                runDataModule
             )
         }
     }
