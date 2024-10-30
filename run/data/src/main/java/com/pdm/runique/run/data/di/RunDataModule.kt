@@ -9,7 +9,6 @@ import com.pdm.runique.run.data.FetchRunsWorker
 import com.pdm.runique.run.data.SyncRunWorkerScheduler
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
-import org.koin.dsl.module
 
 val runDataModule = module {
     workerOf(::CreateRunWorker)

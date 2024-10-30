@@ -5,7 +5,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.pdm.runique.core.database.dao.RunPendingSyncDao
 import com.pdm.runique.core.domain.run.RemoteRunDataSource
-import com.pdm.runique.core.domain.util.Result
 
 class DeleteRunWorker(
     context: Context,
