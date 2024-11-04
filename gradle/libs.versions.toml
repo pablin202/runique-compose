@@ -131,6 +131,7 @@ runique-android-feature-ui = { id = "runique.android.feature.ui", version = "uns
 runique-android-room = { id = "runique.android.room", version = "unspecified" }
 runique-jvm-library = { id = "runique.jvm.library", version = "unspecified" }
 runique-jvm-ktor = { id = "runique.jvm.ktor", version = "unspecified" }
+runique-android-dynamic-feature ={ id = "runique.android.dynamic.feature", version="unspecific"}
 
 [bundles]
 compose = [
