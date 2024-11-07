@@ -2,6 +2,7 @@ package com.pdm.runique.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.pdm.runique.core.database.dao.AnalyticsDao
 import com.pdm.runique.core.database.dao.RunDao
 import com.pdm.runique.core.database.dao.RunPendingSyncDao
 import com.pdm.runique.core.database.entity.RunEntity
@@ -16,4 +17,5 @@ import com.pdm.runique.core.database.entity.DeletedRunSyncEntity
 abstract class RunDatabase : RoomDatabase() {
     abstract val runPendingSyncDao: RunPendingSyncDao
     abstract val runDao: RunDao
+    abstract val analyticsDao: AnalyticsDao
 }

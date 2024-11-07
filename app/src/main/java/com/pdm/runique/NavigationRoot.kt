@@ -18,18 +18,22 @@ import com.pdm.runique.run.presentation.run_overview.RunOverviewRoot
 @Composable
 fun NavigationRoot(
     navController: NavHostController,
-    isLoggedIn: Boolean
+    isLoggedIn: Boolean,
+    onAnalyticsClick: () -> Unit
 ) {
     NavHost(
         navController = navController,
         startDestination = if (isLoggedIn) "run" else "auth"
     ) {
         authGraph(navController)
-        runGraph(navController)
+        runGraph(
+            navController,
+            onAnalyticsClick
+        )
     }
 }
 
-private fun NavGraphBuilder.authGraph(navController: NavHostController) {
+private fun NavGraphBuilder.authGraph(navController: NavHostController, ) {
     navigation(
         startDestination = "intro",
         route = "auth"
@@ -84,7 +88,7 @@ private fun NavGraphBuilder.authGraph(navController: NavHostController) {
     }
 }
 
-private fun NavGraphBuilder.runGraph(navController: NavHostController) {
+private fun NavGraphBuilder.runGraph(navController: NavHostController, onAnalyticsClick: () -> Unit) {
     navigation(
         startDestination = "run_overview",
         route = "run"
@@ -100,7 +104,11 @@ private fun NavGraphBuilder.runGraph(navController: NavHostController) {
                             inclusive = true
                         }
                     }
-                })
+                },
+                onAnalyticsClick = {
+                    onAnalyticsClick()
+                }
+            )
         }
 
         composable(route = "active_run",
