@@ -52,7 +52,7 @@ internal fun Project.configureBuildTypes(
                             configureDebugBuildType(apiKey)
                         }
                         release {
-                            configureReleaseBuildType(commonExtension, apiKey)
+                            configureDebugBuildType(apiKey)
                         }
                     }
                 }
